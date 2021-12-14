@@ -1,0 +1,12 @@
+<launch>
+    <node pkg="stage_ros" type="stageros" name="simulation" args="/opt/ros/noetic/share/stage_ros/world/willow-erratic.world">
+        <param name="/use_sim_time" value="true"/>
+    </node>
+    <node pkg="my_teleop" type="control.py" name="turtlebot_teleop_control"  output="screen">
+    </node>
+    
+    <group if="$(arg rviz)">
+        <node pkg="rviz" type="rviz" name="rviz_simul" args="-d /opt/ros/noetic/share/stage_ros/rviz/stage.rviz">
+        </node>
+    </group>
+</launch>
