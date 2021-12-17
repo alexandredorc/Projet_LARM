@@ -16,15 +16,22 @@ commandPublisher = rospy.Publisher(
     '/cmd_vel_mux/input/navi',
     Twist, queue_size=10
 )
-
 # Publish velocity commandes:
-def move_command(data):
-    # Compute cmd_vel here and publish... (do not forget to reduce timer duration)
-    pass
+def check_path(data, angle_G, angle_D, dist_min_G, dist_min_D): 
+    print("test")
+    aPoint_G= [math.cos(angle_G) * dist_min_G, math.sin( angle_G ) * dist_min_G]
+    aPoint_D= [math.cos(angle_D) * dist_min_D, math.sin( angle_D ) * dist_min_D]
+    dist= math.sqrt((aPoint_G[0]-aPoint_D[0])**2+(aPoint_G[1]-aPoint_D[1])**2)
+    if (dist<0.4):
+        spin=6
+        speed=0.2
+    else:
+        speed=1
+        spin=0
+    print(speed,spin)
+    return speed,spin
 
 
-# call the move_command at a regular frequency:
-rospy.Timer( rospy.Duration(0.1), move_command, oneshot=False )
 
 def callB(data):
     obstacles= []
@@ -57,18 +64,19 @@ def callB(data):
 
 
 
-    if dist_min < 2 :
+    if dist_min < 0.5:
+
         if dist_min < 0.3 :
             speed= 0.01
         elif dist_min < 0.4 :
-            speed= 0.1
+            speed= 0.2
     
         if dist_min >= 0.4 :
             speed= 0.5
 
         if angle_min > 0:
             spin = -0.5
-            if dist_min < 0.4:
+            if dist_min < 0.4: 
                 spin= -2.5
         elif angle_min < 0:
             spin = 0.5
@@ -76,15 +84,14 @@ def callB(data):
                 spin=2.5
         else:
             spin=0
-        print(dist_min_G,dist_min_D)
+
         if dist_min_D > dist_min_G-0.05 and dist_min_D < dist_min_G+0.05 :
-            spin=4
-            speed=0
-            print("testestestestets")
+            print("in")
+            speed,spin=check_path(data,angle_min_G,angle_min_D,dist_min_G,dist_min_D)
     else:
         spin = 0
         speed = 0.8
-            
+    print(speed,spin)        
     cmd= Twist()
     cmd.angular.z= spin
     cmd.linear.x= speed
