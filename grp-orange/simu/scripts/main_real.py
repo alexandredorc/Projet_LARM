@@ -58,27 +58,27 @@ def callB(data):
 
 
     if dist_min < 2 :
-        if dist_min < 0.3 :
+        if dist_min < 0.25 :
             speed= 0.01
-        elif dist_min < 0.4 :
+        elif dist_min < 0.3 :
             speed= 0.1
     
-        if dist_min >= 0.4 :
-            speed= 0.5
+        if dist_min >= 0.3 :
+            speed= 0.3
 
         if angle_min > 0:
-            spin = -0.5
-            if dist_min < 0.4:
-                spin= -2.5
+            spin = -0.2
+            if dist_min < 0.3:
+                spin= -0.5
         elif angle_min < 0:
-            spin = 0.5
-            if dist_min < 0.4:
-                spin=2.5
+            spin = 0.2
+            if dist_min < 0.3:
+                spin=0.5
         else:
             spin=0
         print(dist_min_G,dist_min_D)
         if dist_min_D > dist_min_G-0.05 and dist_min_D < dist_min_G+0.05 :
-            spin=4
+            spin=1
             speed=0
             print("testestestestets")
     else:
