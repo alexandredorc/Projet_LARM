@@ -1,5 +1,0 @@
-<launch>
-  <!-- turtlebot_teleop_key already has its own built in velocity smoother -->
-  <node pkg="my_teleop" type="control.py" name="turtlebot_teleop_control"  output="screen">
-  </node>
-</launch>
