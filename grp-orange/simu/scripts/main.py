@@ -4,8 +4,7 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 
 
-global spin
-global speed
+
 
 spin=0
 speed=0.5
@@ -23,10 +22,10 @@ def check_path(data, angle_G, angle_D, dist_min_G, dist_min_D):
     aPoint_D= [math.cos(angle_D) * dist_min_D, math.sin( angle_D ) * dist_min_D]
     dist= math.sqrt((aPoint_G[0]-aPoint_D[0])**2+(aPoint_G[1]-aPoint_D[1])**2)
     if (dist<0.4):
-        spin=6
-        speed=0.2
+        spin=1
+        speed=0.03
     else:
-        speed=1
+        speed=0.25
         spin=0
     print(speed,spin)
     return speed,spin
@@ -41,7 +40,7 @@ def callB(data):
     dist_min_G=100
     dist_min_D=100
     for aDistance in data.ranges :
-        if 0.1 < aDistance and aDistance < 5.0 and angle > -1.571 and angle < 1.571:
+        if 0.1 < aDistance and aDistance < 5.0 and angle > -1.57 and angle < 1.57:
             aPoint= [math.cos(angle) * aDistance, math.sin( angle ) * aDistance]
             obstacles.append( aPoint )
             if angle < 0:
@@ -62,40 +61,56 @@ def callB(data):
         dist_min= dist_min_D
         angle_min=angle_min_D
 
+    speed=0.3
+    spin=0
 
+    if dist_min < 0.6:
 
-    if dist_min < 0.5:
-
-        if dist_min < 0.3 :
+        if dist_min < 0.4 :
             speed= 0.01
-        elif dist_min < 0.4 :
+        elif dist_min < 0.5 :
             speed= 0.2
     
-        if dist_min >= 0.4 :
-            speed= 0.5
+        if dist_min >= 0.5 :
+            speed= 0.3
 
         if angle_min > 0:
-            spin = -0.5
-            if dist_min < 0.4: 
-                spin= -2.5
+            spin = -0.2
+            if dist_min < 0.5: 
+                spin= -0.5
         elif angle_min < 0:
-            spin = 0.5
-            if dist_min < 0.4:
-                spin=2.5
+            spin = 0.2
+            if dist_min < 0.5:
+                spin=0.5
         else:
             spin=0
 
-        if dist_min_D > dist_min_G-0.05 and dist_min_D < dist_min_G+0.05 :
+        if dist_min_D > dist_min_G-0.1 and dist_min_D < dist_min_G+0.1 :
             print("in")
             speed,spin=check_path(data,angle_min_G,angle_min_D,dist_min_G,dist_min_D)
     else:
         spin = 0
-        speed = 0.8
+        speed = 0.3
+    print(angle_min,dist_min)
     print(speed,spin)        
     cmd= Twist()
+
+    global speed_actu
+    global spin_actu
+    if(speed>  speed_actu):
+        speed_actu+=0.01
+    if(speed<  speed_actu):
+        speed_actu-=0.01
+    if(speed>  speed_actu):
+        spin_actu+=0.01
+    if(speed<  speed_actu):
+        spin_actu-=0.01
     cmd.angular.z= spin
-    cmd.linear.x= speed
+    cmd.linear.x= speed_actu
     commandPublisher.publish(cmd)
+
+spin_actu=0
+speed_actu=0
 
 rospy.Subscriber("/scan", LaserScan, callB )
 # spin() enter the program in a infinite loop
