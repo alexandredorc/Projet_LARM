@@ -23,6 +23,29 @@ def move_command(data):
     pass
 
 
+
+def check_path(data, angle_G, angle_D): 
+    print("test")
+    angle= data.angle_min
+    angle_sens=0.2
+    angle_before=-3
+    dist_before= None
+    list_dist=[]
+    list_angle=[]
+    
+    for aDistance in data.ranges:
+        if angle > angle_G and angle < angle_D:
+            if dist_before is not None and angle_before > angle+angle_sens or angle_before < angle-angle_sens  :
+                list_dist.append(dist_before)
+                list_angle.append(angle_before)
+                list_dist.append(aDistance)
+                list_angle.append(angle)
+            angle_before=angle
+        angle+= data.angle_increment
+    print(list_dist, list_angle)
+    
+    
+
 # call the move_command at a regular frequency:
 rospy.Timer( rospy.Duration(0.1), move_command, oneshot=False )
 
@@ -80,6 +103,7 @@ def callB(data):
         if dist_min_D > dist_min_G-0.05 and dist_min_D < dist_min_G+0.05 :
             spin=1
             speed=0
+            
             print("testestestestets")
     else:
         spin = 0
