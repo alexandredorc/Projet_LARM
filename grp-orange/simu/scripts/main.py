@@ -18,11 +18,10 @@ def check_path(data, angle_G, angle_D, dist_min_G, dist_min_D): # cette fonction
     dist= math.sqrt((aPoint_G[0]-aPoint_D[0])**2+(aPoint_G[1]-aPoint_D[1])**2)
     if (dist<0.4):
         spin=1
-        speed=0.03
+        speed=0.05
     else:
         speed=0.25
         spin=0
-    print(speed,spin)
     return speed,spin
 
 
@@ -73,7 +72,7 @@ def callback(data):
         dist_min= dist_min_D
         angle_min=angle_min_D
 
-    speed=0.3
+    speed=1
     spin=0
 
     if dist_min < 0.6: #si le robot detecte un objet à moins de 0,6
@@ -92,7 +91,7 @@ def callback(data):
         elif angle_min < 0:
             spin = 0.2
             if dist_min < 0.5:
-                spin=0.5
+                spin=1
         else:
             spin=0
 
@@ -102,7 +101,7 @@ def callback(data):
 
     else: #si le robot ne detecte pas d'objet a 0,6 alors il va tout droit
         spin = 0
-        speed = 0.3
+        speed = 0.5
 
     publisher(spin,speed)
 

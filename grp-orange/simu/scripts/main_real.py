@@ -23,7 +23,6 @@ def check_path(data, angle_G, angle_D, dist_min_G, dist_min_D): # cette fonction
     else:
         speed=0.25
         spin=0
-    print(speed,spin)
     return speed,spin
 
 
