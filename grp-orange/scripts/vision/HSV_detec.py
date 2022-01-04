@@ -11,6 +11,8 @@ rospy.init_node('image_test', anonymous=True)
 
 def souris(event, x, y, flags, param):
     global lo, hi, color, hsv_px
+    sensi=np.array([20,100,20])
+
     if event == cv2.EVENT_MOUSEMOVE:
         # Conversion des trois couleurs RGB sous la souris en HSV
         global frame
@@ -20,18 +22,23 @@ def souris(event, x, y, flags, param):
     
     if event==cv2.EVENT_MBUTTONDBLCLK:
         global image
-        color=image[y, x][0]
-
+        color=image[y, x]
+    """
     if event==cv2.EVENT_LBUTTONDOWN:
         if color>5:
             color-=1
 
-    if event==cv2.EVENT_RBUTTONDOWN:
+    if event==cv2.EVENT_RBUTTONDOWN:rame, "Couleur: {:d}".format(color)
         if color<250:
             color+=1
-            
-    lo[0]=color-5
-    hi[0]=color+5
+    """
+    min_color=sensi
+    max_color=255-sensi
+    
+    lo=np.amax(np.vstack((np.array(color),min_color)),axis=0)-sensi
+    hi=np.amin(np.vstack((np.array(color),max_color)),axis=0)+sensi
+
+   
 
 bridge = CvBridge()
 
@@ -42,11 +49,12 @@ def callback(data):
     global image
     image=cv2.blur(frame, (7, 7))
 
+    print(lo,hi)
     mask=cv2.inRange(image, lo, hi)
     mask=cv2.erode(mask, None, iterations=4)
     mask=cv2.dilate(mask, None, iterations=4)
     image2=cv2.bitwise_and(image, frame, mask= mask)
-    cv2.putText(frame, "Couleur: {:d}".format(color), (10, 30), cv2.FONT_HERSHEY_DUPLEX, 1, color_info, 1, cv2.LINE_AA)
+    cv2.putText(frame, "Couleur: {0} {1} {2}".format(color[0],color[1],color[2]), (10, 30), cv2.FONT_HERSHEY_DUPLEX, 1, color_info, 1, cv2.LINE_AA)
     
     # Affichage des compdata(255, 255, 255), 1, cv2.LINE_AA)
 
@@ -64,13 +72,14 @@ def callback(data):
     cv2.imshow('Camera', frame)
     cv2.imshow('image2', image2)
     cv2.imshow('Mask', mask)
+
     cv2.waitKey(3)
 
 
-color=0
+color=[25,25,25]
 
-lo=np.array([color-5, 100, 50])
-hi=np.array([color+5, 255,255])
+lo=np.array(color)-10
+hi=np.array(color)+10
 color_info=(0, 0, 255)
 
 cv2.namedWindow('Camera')

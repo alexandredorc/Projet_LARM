@@ -29,7 +29,7 @@ def plot_colors(hist, centroids):
     return bar
     
 image = cv2.imread('white_WP.jpg')
-
+print(np.vstack((np.array(color),min_color)))
 
 original_shape=image.shape
 n_clusters=10
