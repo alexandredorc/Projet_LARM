@@ -1,16 +1,25 @@
+#!/usr/bin/python3
+import math, rospy
+from geometry_msgs.msg import Twist
 import cv2
 import numpy as np
+from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
+
+
+rospy.init_node('image_test', anonymous=True)
 
 def souris(event, x, y, flags, param):
     global lo, hi, color, hsv_px
-    
     if event == cv2.EVENT_MOUSEMOVE:
         # Conversion des trois couleurs RGB sous la souris en HSV
+        global frame
         px = frame[y,x]
         px_array = np.uint8([[px]])
         hsv_px = cv2.cvtColor(px_array,cv2.COLOR_BGR2HSV)
     
     if event==cv2.EVENT_MBUTTONDBLCLK:
+        global image
         color=image[y, x][0]
 
     if event==cv2.EVENT_LBUTTONDOWN:
@@ -24,34 +33,22 @@ def souris(event, x, y, flags, param):
     lo[0]=color-5
     hi[0]=color+5
 
-color=100
+bridge = CvBridge()
 
-lo=np.array([color-5, 100, 50])
-hi=np.array([color+5, 255,255])
-
-color_info=(0, 0, 255)
-
-cap=cv2.VideoCapture(0)
-cv2.namedWindow('Camera')
-cv2.setMouseCallback('Camera', souris)
-hsv_px = [0,0,0]
-
-while True:
-    ret, frame=cap.read()
-    image=cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    image=cv2.blur(image, (7, 7))
+def callback(data):
+    global frame
+    frame = bridge.imgmsg_to_cv2(data, "bgr8")
+    
+    global image
+    image=cv2.blur(frame, (7, 7))
 
     mask=cv2.inRange(image, lo, hi)
     mask=cv2.erode(mask, None, iterations=4)
     mask=cv2.dilate(mask, None, iterations=4)
-    image2=cv2.bitwise_and(frame, frame, mask= mask)
+    image2=cv2.bitwise_and(image, frame, mask= mask)
     cv2.putText(frame, "Couleur: {:d}".format(color), (10, 30), cv2.FONT_HERSHEY_DUPLEX, 1, color_info, 1, cv2.LINE_AA)
     
-    # Affichage des composantes HSV sous la souris sur l'image
-    pixel_hsv = " ".join(str(values) for values in hsv_px)
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(frame, "px HSV: "+pixel_hsv, (10, 260),
-               font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+    # Affichage des compdata(255, 255, 255), 1, cv2.LINE_AA)
 
     elements=cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
     if len(elements) > 0:
@@ -67,8 +64,22 @@ while True:
     cv2.imshow('Camera', frame)
     cv2.imshow('image2', image2)
     cv2.imshow('Mask', mask)
-    
-    if cv2.waitKey(1)&0xFF==ord('q'):
-        break
-cap.release()
-cv2.destroyAllWindows()
+    cv2.waitKey(3)
+
+
+color=0
+
+lo=np.array([color-5, 100, 50])
+hi=np.array([color+5, 255,255])
+color_info=(0, 0, 255)
+
+cv2.namedWindow('Camera')
+cv2.setMouseCallback('Camera', souris)
+hsv_px = [0,0,0]
+
+
+
+rospy.Subscriber("/camera/color/image_raw", Image, callback )
+# spin() enter the program in a infinite loop
+print("Start display.py")
+rospy.spin()
