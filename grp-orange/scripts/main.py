@@ -8,7 +8,7 @@ from sensor_msgs.msg import LaserScan
 rospy.init_node('move', anonymous=True)
 
 commandPublisher = rospy.Publisher(
-    '/cmd_vel_mux/input/navi',
+    '/cmd_vel',
     Twist, queue_size=10
 )
 
@@ -16,11 +16,11 @@ def check_path(data, angle_G, angle_D, dist_min_G, dist_min_D): # cette fonction
     aPoint_G= [math.cos(angle_G) * dist_min_G, math.sin( angle_G ) * dist_min_G]
     aPoint_D= [math.cos(angle_D) * dist_min_D, math.sin( angle_D ) * dist_min_D]
     dist= math.sqrt((aPoint_G[0]-aPoint_D[0])**2+(aPoint_G[1]-aPoint_D[1])**2)
-    if (dist<0.4):
+    if (dist<0.45):
         spin=1
-        speed=0.05
+        speed=0.01
     else:
-        speed=0.25
+        speed=0.2
         spin=0
     return speed,spin
 
@@ -51,13 +51,13 @@ def publisher(spin,speed): # cette fonction va transmettre les informations au r
     global speed_actu
     global spin_actu
     if(speed>  speed_actu):
-        speed_actu+=0.01
+        speed_actu+=0.02
     if(speed<  speed_actu):
-        speed_actu-=0.01
+        speed_actu-=0.02
     if(speed>  speed_actu):
-        spin_actu+=0.01
+        spin_actu+=0.02
     if(speed<  speed_actu):
-        spin_actu-=0.01
+        spin_actu-=0.02
     cmd.angular.z= spin
     cmd.linear.x= speed_actu
     commandPublisher.publish(cmd)
@@ -109,7 +109,7 @@ def callback(data):
 spin_actu=0
 speed_actu=0
 
-rospy.Subscriber("/scan", LaserScan, callback )
+rospy.Subscriber("/base_scan", LaserScan, callback )
 # spin() enter the program in a infinite loop
 print("Start move.py")
 rospy.spin()

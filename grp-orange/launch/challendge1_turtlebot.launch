@@ -4,9 +4,9 @@
     <include file="($ find turtlebot_bringup/minimal.launch" />
     <node type="urg_node" name="scanner" pkg="urg_node" />  
  
-    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find simu)/rviz_config/rviz_laser_config.rviz" />
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find grp-orange)/rviz_config/rviz_laser_config.rviz" />
     
-    <node type="main.py" name="control" pkg="grp-orange"/>
+    <node type="main_real.py" name="control" pkg="grp-orange"/>
 
 	
 </launch>
