@@ -5,13 +5,14 @@ import cv2
 import numpy as np
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
+import message_filters
 
 
 rospy.init_node('image_test', anonymous=True)
 
 def souris(event, x, y, flags, param):
     global lo, hi, color, hsv_px
-    sensi=np.array([20,100,20])
+    sensi=np.array([50,100,50])
 
     if event == cv2.EVENT_MOUSEMOVE:
         # Conversion des trois couleurs RGB sous la souris en HSV
@@ -25,7 +26,7 @@ def souris(event, x, y, flags, param):
         color=image[y, x]
     """
     if event==cv2.EVENT_LBUTTONDOWN:
-        if color>5:
+        if color>5:callback
             color-=1
 
     if event==cv2.EVENT_RBUTTONDOWN:rame, "Couleur: {:d}".format(color)
@@ -39,7 +40,6 @@ def souris(event, x, y, flags, param):
     hi=np.amin(np.vstack((np.array(color),max_color)),axis=0)+sensi
 
    
-
 bridge = CvBridge()
 
 def callback(data):
@@ -49,24 +49,36 @@ def callback(data):
     global image
     image=cv2.blur(frame, (7, 7))
 
-    print(lo,hi)
+    global depth_data
+    
+    #480 848  240 424
     mask=cv2.inRange(image, lo, hi)
     mask=cv2.erode(mask, None, iterations=4)
     mask=cv2.dilate(mask, None, iterations=4)
     image2=cv2.bitwise_and(image, frame, mask= mask)
-    cv2.putText(frame, "Couleur: {0} {1} {2}".format(color[0],color[1],color[2]), (10, 30), cv2.FONT_HERSHEY_DUPLEX, 1, color_info, 1, cv2.LINE_AA)
+    cv2.putText(frame, "Couleur: {0} {1} {2}ts.registerCallback(callback)".format(color[0],color[1],color[2]), (10, 30), cv2.FONT_HERSHEY_DUPLEX, 1, color_info, 1, cv2.LINE_AA)
     
     # Affichage des compdata(255, 255, 255), 1, cv2.LINE_AA)
 
     elements=cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+
+
     if len(elements) > 0:
         c=max(elements, key=cv2.contourArea)
-        ((x, y), rayon)=cv2.minEnclosingCircle(c)
-        if rayon>30:
-            cv2.circle(image2, (int(x), int(y)), int(rayon), color_info, 2)
+        rec=cv2.boundingRect(c)
+        x=int(rec[0])+int(rec[2])/2
+        y=int(rec[1])+int(rec[3])/2
+        y_depth=int(y*480/720)
+        x_depth=int(x*848/1280)
+        
+        print(depth_data[y_depth,x_depth])
+        rayon=500
+        if rayon>30 :
+            cv2.rectangle(frame, (int(rec[0]), int(rec[1])), (int(rec[0])+int(rec[2]), int(rec[3])+int(rec[1])), color_info, 2)
             cv2.circle(frame, (int(x), int(y)), 5, color_info, 10)
             cv2.line(frame, (int(x), int(y)), (int(x)+150, int(y)), color_info, 2)
             cv2.putText(frame, "Objet !!!", (int(x)+10, int(y) -10), cv2.FONT_HERSHEY_DUPLEX, 1, color_info, 1, cv2.LINE_AA)
+
 
 
     cv2.imshow('Camera', frame)
@@ -75,9 +87,16 @@ def callback(data):
 
     cv2.waitKey(3)
 
+    rate.sleep()
 
+
+def depth_CB(data):
+    global depth_data
+    depth_data = np.array(bridge.imgmsg_to_cv2(data, desired_encoding="passthrough"))
+
+    
 color=[25,25,25]
-
+depth_data=np.array([])
 lo=np.array(color)-10
 hi=np.array(color)+10
 color_info=(0, 0, 255)
@@ -86,9 +105,14 @@ cv2.namedWindow('Camera')
 cv2.setMouseCallback('Camera', souris)
 hsv_px = [0,0,0]
 
-
+rate=rospy.Rate(10)
 
 rospy.Subscriber("/camera/color/image_raw", Image, callback )
+
+rospy.Subscriber("/camera/depth/image_rect_raw", Image , depth_CB)
+
+
+print("(ง`_´)ง")#(ง`_´)ง
+
 # spin() enter the program in a infinite loop
-print("Start display.py")
-rospy.spin()
+rospy.spin() 
