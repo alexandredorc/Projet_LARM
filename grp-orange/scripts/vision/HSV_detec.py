@@ -6,7 +6,7 @@ import numpy as np
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 import message_filters
-
+from test_marker import *
 
 rospy.init_node('image_test', anonymous=True)
 
@@ -24,15 +24,7 @@ def souris(event, x, y, flags, param):
     if event==cv2.EVENT_MBUTTONDBLCLK:
         global image
         color=image[y, x]
-    """
-    if event==cv2.EVENT_LBUTTONDOWN:
-        if color>5:callback
-            color-=1
 
-    if event==cv2.EVENT_RBUTTONDOWN:rame, "Couleur: {:d}".format(color)
-        if color<250:
-            color+=1
-    """
     min_color=sensi
     max_color=255-sensi
     
@@ -42,7 +34,17 @@ def souris(event, x, y, flags, param):
    
 bridge = CvBridge()
 
+
+def realCoor(x,y,sc_x,sc_y,D):
+    
+    width=43.5*sc_x/640
+    angle=43.5*(x-640)/640
+    dist=D
+    angle=angle*math.pi/180
+    return [math.cos(angle) * dist, math.sin( angle ) * dist-35]
+
 def callback(data):
+    
     global frame
     frame = bridge.imgmsg_to_cv2(data, "bgr8")
     
@@ -66,18 +68,19 @@ def callback(data):
     if len(elements) > 0:
         c=max(elements, key=cv2.contourArea)
         rec=cv2.boundingRect(c)
-        x=int(rec[0])+int(rec[2])/2
-        y=int(rec[1])+int(rec[3])/2
-        y_depth=int(y*480/720)
-        x_depth=int(x*848/1280)
-        
-        print(depth_data[y_depth,x_depth])
+        x=int(rec[0]+(rec[2])/2)
+        y=int(rec[1]+(rec[3])/2)
+        depth=depth_data[y][x]
+        coor= realCoor(x,y,rec[2],rec[3],depth)
+        print("depth",depth/10)
+        print(coor)
         rayon=500
-        if rayon>30 :
+        if rayon>30 and depth != 0:
             cv2.rectangle(frame, (int(rec[0]), int(rec[1])), (int(rec[0])+int(rec[2]), int(rec[3])+int(rec[1])), color_info, 2)
             cv2.circle(frame, (int(x), int(y)), 5, color_info, 10)
             cv2.line(frame, (int(x), int(y)), (int(x)+150, int(y)), color_info, 2)
             cv2.putText(frame, "Objet !!!", (int(x)+10, int(y) -10), cv2.FONT_HERSHEY_DUPLEX, 1, color_info, 1, cv2.LINE_AA)
+            marker_publish(coor[0]/100,-coor[1]/100,0.5)
 
 
 
@@ -109,7 +112,7 @@ rate=rospy.Rate(10)
 
 rospy.Subscriber("/camera/color/image_raw", Image, callback )
 
-rospy.Subscriber("/camera/depth/image_rect_raw", Image , depth_CB)
+rospy.Subscriber("/camera/aligned_depth_to_color/image_raw", Image , depth_CB)
 
 
 print("(ง`_´)ง")#(ง`_´)ง
