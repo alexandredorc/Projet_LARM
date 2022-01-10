@@ -206,4 +206,4 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-' object is not subscriptable
+# object is not subscriptable

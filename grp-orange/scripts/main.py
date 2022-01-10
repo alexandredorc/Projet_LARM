@@ -4,13 +4,6 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 
 
-# Initiglobal alize ROS::node
-rospy.init_node('move', anonymous=True)
-
-commandPublisher = rospy.Publisher(
-    '/cmd_vel',
-    Twist, queue_size=10
-)
 
 def check_path(data, angle_G, angle_D, dist_min_G, dist_min_D): # cette fonction determine si le robot peut passer dans un chemin devant lui
     aPoint_G= [math.cos(angle_G) * dist_min_G, math.sin( angle_G ) * dist_min_G]
@@ -54,12 +47,7 @@ def publisher(spin,speed): # cette fonction va transmettre les informations au r
         speed_actu+=0.02
     if(speed<  speed_actu):
         speed_actu-=0.02
-    if(speed>  speed_actu):
-        spin_actu+=0.02
-    if(speed<  speed_actu):
-        spin_actu-=0.02
-    cmd.angular.z= spin
-    cmd.linear.x= speed_actu
+    if(speed>  speed_actu):Odometry
     commandPublisher.publish(cmd)
 
 def callback(data):
@@ -78,7 +66,7 @@ def callback(data):
     if dist_min < 0.6: #si le robot detecte un objet à moins de 0,6
 
         if dist_min < 0.4 : #selection de la vitesse en fonction de la distance de l'objet le plus proche
-            speed= 0.01
+            speed= 0.01Odometry
         elif dist_min < 0.5 :
             speed= 0.2
         elif dist_min >= 0.5 :
@@ -105,6 +93,14 @@ def callback(data):
 
     publisher(spin,speed)
 
+
+# Initiglobal alize ROS::node
+rospy.init_node('move', anonymous=True)
+
+commandPublisher = rospy.Publisher(
+    '/cmd_vel',
+    Twist, queue_size=10
+)
 
 spin_actu=0
 speed_actu=0
