@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<launch>  
+
+    
+    <arg name="align_depth" default="true"/>
+    
+    <group>
+        <include file="$(find realsense2_camera)/launch/rs_camera.launch" >
+            <arg name="align_depth" value="$(arg align_depth)" />
+        </include>
+        <node pkg="tf" type="static_transform_publisher" name="fictive_map" args="5.0 5.0 0.0 0.0 0.0 0.0 map camera_link 80" />
+        
+    </group>
+        
+    <node type="HSV_detec.py" name="image_proc" pkg="grp-orange"/>
+
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find grp-orange)/rviz_config/rviz_test_trans.rviz" /> 
+    
+    
+    
+    
+	
+</launch>
