@@ -31,15 +31,15 @@ def _init_markers(x,y,z,id):
     marker.color.g = 1.0
     marker.color.b = 0.0
     marker.color.a = 1.0
-    marker.scale.x = 0.2
-    marker.scale.y = 0.2
-    marker.scale.z = 0.4
+    marker.scale.x = 0.1
+    marker.scale.y = 0.1
+    marker.scale.z = 0.2
     return marker
 
 def init_PoseStamped(x,y):
     Pose = PoseStamped()
     Pose.header.frame_id = 'camera_link'
-    # Pose.header.stamp.secs= 0
+    Pose.header.stamp= rospy.Time.now()
     Pose.pose.position.x= x
     Pose.pose.position.y= y
     Pose.pose.position.z= 0

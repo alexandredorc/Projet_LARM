@@ -11,13 +11,12 @@ import tf
 
 def souris(event, x, y, flags, param):
     global lo, hi, color, hsv_px
-    sensi=np.array([15,15,15])
+    sensi=np.array([30,80,30])
 
     if event == cv2.EVENT_MOUSEMOVE:
         # Conversion des trois couleurs RGB sous la souris en HSV
         global frame
-        print(x,y)
-        px = frame[y,x]
+        px = frame[y,x-1]
         px_array = np.uint8([[px]])
         hsv_px = cv2.cvtColor(px_array,cv2.COLOR_BGR2HSV)
     
@@ -56,28 +55,35 @@ def display_images():
 
 
 def image_proc(data):
-    print("Receive data from camera")
+    
     global frame
     global image
     global mask
     global depth_data
+    global depth_image
+    global timeStamp
+    timeStamp= data.header.stamp
 
     frame = bridge.imgmsg_to_cv2(data, "bgr8")
     image=cv2.blur(frame, (7, 7))
     mask=cv2.inRange(image, lo, hi)
     mask=cv2.erode(mask, None, iterations=8)
     mask=cv2.dilate(mask, None, iterations=8)
-
     elements=cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
     close_elem=[]
     for e in elements:
+        
         rec=cv2.boundingRect(e)
         x=int(rec[0]+(rec[2])/2)
         y=int(rec[1]+(rec[3])/2)
         depth_bottle=depth_data[y,x]
-        print(cv2.contourArea(e))
-        if depth_bottle >= 150 and depth_bottle < 1500:
-            close_elem.append(e)
+        depth_color=depth_image[y,x]
+        print(type(depth_color))
+        image=cv2.inRange(depth_image, depth_color-1, depth_color+1)
+        bottle_shape=cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+        max(bottle_shape, key=cv2.contourArea)
+        if depth_bottle >= 150 and depth_bottle < 1500 and cv2.contourArea(e)>2000:
+            close_elem.append(bottle_shape)
 
     if len(close_elem) > 0 and depth_data is not None:
         
@@ -91,7 +97,7 @@ def image_proc(data):
 
         if  depth_bottle >= 150 and depth_bottle < 1500:
             display_info(rec,x,y)
-            gestionBottle(coor[0]/100,-coor[1]/100)
+            gestionBottle(coor[0]/1000,-coor[1]/1000)
             
     display_images()
 
@@ -103,7 +109,7 @@ def gestionBottle(x,y):
     transfPose = tfListener.transformPose("map", createPose  )
     test = 0
     for id,aBottle in enumerate(bottles):
-        if math.sqrt((transfPose.pose.position.x-aBottle[0])**2 + (transfPose.pose.position.y-aBottle[1])**2) < 1.5 :
+        if math.sqrt((transfPose.pose.position.x-aBottle[0])**2 + (transfPose.pose.position.y-aBottle[1])**2) < 0.30 :
             transfPose.pose.position.x=(transfPose.pose.position.x+aBottle[0])/2
             transfPose.pose.position.y=(transfPose.pose.position.y+aBottle[1])/2
             marker_modify(transfPose.pose.position.x,transfPose.pose.position.y,transfPose.pose.position.z,id )
@@ -116,8 +122,10 @@ def gestionBottle(x,y):
         bottles.append(bottle)
         marker_add(transfPose.pose.position.x,transfPose.pose.position.y,transfPose.pose.position.z, len(bottles))
 
-5
+
 def get_depth(data):
+    global depth_image
+    depth_image=np.array(bridge.imgmsg_to_cv2(data,'8UC1'))
     global depth_data
     depth_data = np.array(bridge.imgmsg_to_cv2(data, desired_encoding="passthrough"))
 
@@ -132,7 +140,7 @@ if __name__=="__main__":
     tfListener= tf.TransformListener()
 
     bottles=[]
-    color=[15,20,20]
+    color=[15,80,230]
     hsv_px = [0,0,0]
     color_info=(0, 0, 255)
     depth_data=None
@@ -146,4 +154,4 @@ if __name__=="__main__":
     rospy.Subscriber("/camera/aligned_depth_to_color/image_raw", Image , get_depth)
 
     rate=rospy.Rate(10) # spin() enter the program in a infinite loop
-    rospy.spin() 
+    rospy.spin()  
