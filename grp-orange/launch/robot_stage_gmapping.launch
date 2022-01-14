@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <launch>  
+
+    <param name="/use_sim_time" value="true" />
+    
     <node type="main.py" name="control" pkg="grp-orange"/>
     <node type="stageros" name="simulation" pkg="stage_ros" args="$(find stage_ros)/world/willow-erratic.world">
     </node>
