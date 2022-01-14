@@ -95,7 +95,7 @@ def gestionBottle(x,y,time):
         
     else:
         for id,aBottle in enumerate(bottles):
-            if math.sqrt((x-aBottle[0])**2 + (y-aBottle[1])**2) < 0.60 :
+            if math.sqrt((x-aBottle[0])**2 + (y-aBottle[1])**2) < 0.40 :
                 print(id,"modif")
                 x=(x+aBottle[0]*9)/10
                 y=(y+aBottle[1]*9)/10
@@ -105,13 +105,13 @@ def gestionBottle(x,y,time):
                 print(bottles[id][2], id)
                 if bottles[id][2]>10:
                     marker(x,y,0,id+1,time)
-            for id2 in range(0,id,1):
-                dist= math.sqrt((bottles[id2][0]-aBottle[0])**2 + (bottles[id2][1]-aBottle[1])**2)
-                print(dist,id,id2)
-                if dist < 0.25 :
-                    print(id,id2)
-                    marker_delete(aBottle,id,time)
-                    bottles.pop(id)
+                for id2 in range(0,id,1):
+                    dist= math.sqrt((bottles[id2][0]-aBottle[0])**2 + (bottles[id2][1]-aBottle[1])**2)
+                    print(dist,id,id2)
+                    if dist < 0.25 :
+                        print(id,id2)
+                        marker_delete(aBottle,id,time)
+                        bottles.pop(id)
 
         
      
