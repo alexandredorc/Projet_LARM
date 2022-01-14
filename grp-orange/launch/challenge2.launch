@@ -9,7 +9,7 @@
         </node>      
     </group>
         
-    <node type="HSV_detec.py" name="image_proc" pkg="grp-orange"/>
+    <node type="main.py" name="image_proc" pkg="grp-orange" output="screen"/>
 
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find grp-orange)/rviz_config/rviz_config.rviz" /> 
     	

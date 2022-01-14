@@ -1,13 +1,17 @@
 #!/usr/bin/python3
-import math, rospy
+import sys, math, rospy, rospkg
 from geometry_msgs.msg import Twist, PoseStamped
 import cv2
 import numpy as np
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 import message_filters
-from marker_publish import *
+
+sys.path.append( rospkg.RosPack().get_path('grp-orange') )
+
+from scripts.marker_pub import *
 import tf
+
 
 def souris(event, x, y, flags, param):
     global lo, hi, color, hsv_px
@@ -16,7 +20,7 @@ def souris(event, x, y, flags, param):
     if event == cv2.EVENT_MOUSEMOVE:
         # Conversion des trois couleurs RGB sous la souris en HSV
         global frame
-        px = frame[y,x-1]
+        px = frame[y-1,x-1]
         px_array = np.uint8([[px]])
         hsv_px = cv2.cvtColor(px_array,cv2.COLOR_BGR2HSV)
     
@@ -29,6 +33,7 @@ def souris(event, x, y, flags, param):
     
     lo=np.amax(np.vstack((np.array(color),min_color)),axis=0)-sensi
     hi=np.amin(np.vstack((np.array(color),max_color)),axis=0)+sensi
+
 
 def realCoor(x,y,sc_x,sc_y,D):
     width=43.5*sc_x/640
@@ -48,11 +53,10 @@ def display_images():
     stencil=cv2.bitwise_and(image, frame, mask= mask)
     cv2.putText(frame, "Couleur: {0} {1} {2}".format(color[0],color[1],color[2]), (10, 30), cv2.FONT_HERSHEY_DUPLEX, 1, color_info, 1, cv2.LINE_AA)
     cv2.imshow('Camera', frame)
-    cv2.imshow('Stencil', stencil)
+    #cv2.imshow('Stencil', stencil)
     cv2.imshow('Mask', mask)
 
     cv2.waitKey(3)
-
 
 def image_proc(data):
     
@@ -60,15 +64,16 @@ def image_proc(data):
     global image
     global mask
     global depth_data
-    global depth_image
     global timeStamp
     timeStamp= data.header.stamp
 
     frame = bridge.imgmsg_to_cv2(data, "bgr8")
+    
     image=cv2.blur(frame, (7, 7))
-    mask=cv2.inRange(image, lo, hi)
-    mask=cv2.erode(mask, None, iterations=8)
-    mask=cv2.dilate(mask, None, iterations=8)
+    mask=cv2.inRange(image, lo_or, hi_or)
+    mask=cv2.erode(mask, None, iterations=6)
+    mask=cv2.dilate(mask, None, iterations=6)
+    
     elements=cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
     close_elem=[]
     for e in elements:
@@ -77,18 +82,14 @@ def image_proc(data):
         x=int(rec[0]+(rec[2])/2)
         y=int(rec[1]+(rec[3])/2)
         depth_bottle=depth_data[y,x]
-        depth_color=depth_image[y,x]
-        print(type(depth_color))
-        image=cv2.inRange(depth_image, depth_color-1, depth_color+1)
         bottle_shape=cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
         max(bottle_shape, key=cv2.contourArea)
-        if depth_bottle >= 150 and depth_bottle < 1500 and cv2.contourArea(e)>2000:
+        if depth_bottle >= 150 and depth_bottle < 1500 and cv2.contourArea(e)>300:
             close_elem.append(bottle_shape)
 
+   
     if len(close_elem) > 0 and depth_data is not None:
         
-        bottle=max(close_elem, key=cv2.contourArea)
-        rec=cv2.boundingRect(bottle)
         x=int(rec[0]+(rec[2])/2)
         y=int(rec[1]+(rec[3])/2)
 
@@ -103,39 +104,49 @@ def image_proc(data):
 
     rate.sleep()
 
-def gestionBottle(x,y, time):
+def gestionBottle(x,y,time):
     global tfListener, bottles
     createPose = init_PoseStamped(x,y,time)
-    transfPose = tfListener.transformPose("map", createPose  )
-    isClose = True
-    for id,aBottle in enumerate(bottles):
-        if math.sqrt((transfPose.pose.position.x-aBottle[0])**2 + (transfPose.pose.position.y-aBottle[1])**2) < 0.20 :
-            transfPose.pose.position.x=(transfPose.pose.position.x+aBottle[0])/2
-            transfPose.pose.position.y=(transfPose.pose.position.y+aBottle[1])/2
-            marker_modify(transfPose.pose.position.x,transfPose.pose.position.y,transfPose.pose.position.z,id,time )
-            aBottle[0]=transfPose.pose.position.x
-            aBottle[1]=transfPose.pose.position.y
-            isClose=False
-        for bBottle in bottles:
-            if math.sqrt((bBottle[0]-aBottle[0])**2 + (bBottle[1]-aBottle[1])**2) < 0.10 :
-                marker_delete(aBottle,id,time)
-                bottles.pop(id)
-                id-=1
-    if isClose:
-        bottle=[transfPose.pose.position.x,transfPose.pose.position.y]
-        bottles.append(bottle)
-        marker_add(transfPose.pose.position.x,transfPose.pose.position.y,transfPose.pose.position.z, len(bottles))
+    transfPose = tfListener.transformPose("map", createPose )
 
+    x=transfPose.pose.position.x
+    y=transfPose.pose.position.y
+
+    if all(( math.sqrt((x-aBottle[0])**2 + (y-aBottle[1])**2))>0.3 for aBottle in bottles):
+        bottles.append([x,y,1])
+        
+    else:
+        for id,aBottle in enumerate(bottles):
+            if math.sqrt((x-aBottle[0])**2 + (y-aBottle[1])**2) < 0.60 :
+                print(id,"modif")
+                x=(x+aBottle[0]*7)/8
+                y=(y+aBottle[1]*7)/8
+                bottles[id][0]=x
+                bottles[id][1]=y
+                bottles[id][2]+=1
+                print(bottles[id][2], id)
+                if bottles[id][2]>10:
+                    marker(x,y,0,id+1,time)
+            for id2 in range(0,id,1):
+                dist= math.sqrt((bottles[id2][0]-aBottle[0])**2 + (bottles[id2][1]-aBottle[1])**2)
+                print(dist,id,id2)
+                if dist < 0.25 :
+                    print(id,id2)
+                    marker_delete(aBottle,id,time)
+                    bottles.pop(id)
+
+        
+     
+       
+    print("nombres de marker",len(bottles))
 
 def get_depth(data):
-    global depth_image
-    depth_image=np.array(bridge.imgmsg_to_cv2(data,'8UC1'))
     global depth_data
     depth_data = np.array(bridge.imgmsg_to_cv2(data, desired_encoding="passthrough"))
 
 if __name__=="__main__":
 
-    print("(ง`_´)ง")#(ง`_´)ง
+    print("(ง`_´)ง")#(0ง`_´)ง
 
     rospy.init_node('image_proc', anonymous=True)
     
@@ -144,12 +155,14 @@ if __name__=="__main__":
     tfListener= tf.TransformListener()
 
     bottles=[]
+    confirm_bottle=[]
     color=[15,80,230]
-    hsv_px = [0,0,0]
     color_info=(0, 0, 255)
     depth_data=None
-    lo=np.array(color)-10
-    hi=np.array(color)+10
+    lo_or=np.array([0,130, 200])
+    hi_or=np.array([50, 230,255])
+    lo_red=np.array([20,130, 200])
+    hi_red=np.array([40, 210,255])
 
     cv2.namedWindow('Camera')
     cv2.setMouseCallback('Camera', souris)
@@ -157,5 +170,5 @@ if __name__=="__main__":
     rospy.Subscriber("/camera/color/image_raw", Image, image_proc)
     rospy.Subscriber("/camera/aligned_depth_to_color/image_raw", Image , get_depth)
 
-    rate=rospy.Rate(10) # spin() enter the program in a infinite loop
+    rate=rospy.Rate(30) # spin() enter the program in a infinite loop
     rospy.spin()  
