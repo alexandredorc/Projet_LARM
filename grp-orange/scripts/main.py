@@ -13,28 +13,6 @@ from scripts.marker_pub import *
 import tf
 
 
-def souris(event, x, y, flags, param):
-    global lo, hi, color, hsv_px
-    sensi=np.array([30,80,30])
-
-    if event == cv2.EVENT_MOUSEMOVE:
-        # Conversion des trois couleurs RGB sous la souris en HSV
-        global frame
-        px = frame[y-1,x-1]
-        px_array = np.uint8([[px]])
-        hsv_px = cv2.cvtColor(px_array,cv2.COLOR_BGR2HSV)
-    
-    if event==cv2.EVENT_MBUTTONDBLCLK:
-        global image
-        color=image[y, x]
-
-    min_color=sensi
-    max_color=255-sensi
-    
-    lo=np.amax(np.vstack((np.array(color),min_color)),axis=0)-sensi
-    hi=np.amin(np.vstack((np.array(color),max_color)),axis=0)+sensi
-
-
 def realCoor(x,y,sc_x,sc_y,D):
     width=43.5*sc_x/640
     angle=43.5*(x-640)/640
@@ -69,6 +47,8 @@ def image_proc(data):
 
     frame = bridge.imgmsg_to_cv2(data, "bgr8")
     
+
+    #for orange detection
     image=cv2.blur(frame, (7, 7))
     mask=cv2.inRange(image, lo_or, hi_or)
     mask=cv2.erode(mask, None, iterations=6)
@@ -77,7 +57,6 @@ def image_proc(data):
     elements=cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
     close_elem=[]
     for e in elements:
-        
         rec=cv2.boundingRect(e)
         x=int(rec[0]+(rec[2])/2)
         y=int(rec[1]+(rec[3])/2)
@@ -87,7 +66,6 @@ def image_proc(data):
         if depth_bottle >= 150 and depth_bottle < 1500 and cv2.contourArea(e)>300:
             close_elem.append(bottle_shape)
 
-   
     if len(close_elem) > 0 and depth_data is not None:
         
         x=int(rec[0]+(rec[2])/2)
@@ -97,10 +75,10 @@ def image_proc(data):
         coor= realCoor(x,y,rec[2],rec[3],depth_bottle)
 
         if  depth_bottle >= 150 and depth_bottle < 1500:
-            display_info(rec,x,y)
+            #display_info(rec,x,y)
             gestionBottle(coor[0]/1000,-coor[1]/1000,timeStamp)
             
-    display_images()
+    #display_images()
 
     rate.sleep()
 
@@ -119,8 +97,8 @@ def gestionBottle(x,y,time):
         for id,aBottle in enumerate(bottles):
             if math.sqrt((x-aBottle[0])**2 + (y-aBottle[1])**2) < 0.60 :
                 print(id,"modif")
-                x=(x+aBottle[0]*7)/8
-                y=(y+aBottle[1]*7)/8
+                x=(x+aBottle[0]*9)/10
+                y=(y+aBottle[1]*9)/10
                 bottles[id][0]=x
                 bottles[id][1]=y
                 bottles[id][2]+=1
@@ -137,8 +115,6 @@ def gestionBottle(x,y,time):
 
         
      
-       
-    print("nombres de marker",len(bottles))
 
 def get_depth(data):
     global depth_data
@@ -161,11 +137,6 @@ if __name__=="__main__":
     depth_data=None
     lo_or=np.array([0,130, 200])
     hi_or=np.array([50, 230,255])
-    lo_red=np.array([20,130, 200])
-    hi_red=np.array([40, 210,255])
-
-    cv2.namedWindow('Camera')
-    cv2.setMouseCallback('Camera', souris)
 
     rospy.Subscriber("/camera/color/image_raw", Image, image_proc)
     rospy.Subscriber("/camera/aligned_depth_to_color/image_raw", Image , get_depth)
