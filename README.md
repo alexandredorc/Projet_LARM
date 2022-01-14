@@ -2,16 +2,20 @@
 
 https://ceri-num.gitbook.io/uv-larm/
 
-This project goal is to be able to control a turtle type of robot in gazebo and in hobuki robots in reality.
+Ce projet à pour but de detecter des bouteilles dans un environnement à l'aide d'une caméra
 
-To make htis project work you will need the package mb6-tbot to be download. follow this website indication 
+Pour lancer notre projet, il suffit de lancer le launch 
+> roslaunch grp-orange challenge2.launch
 
-> https://bitbucket.org/imt-mobisyst/mb6-tbot/src/master/
+Pour traiter les données, nous avons décidé d'utiliser la méthode HSV.
 
-after executing the roscore command in the terminal. You can execute 2 différent launch files that start the control program in either the gazebo simulation:
+(A toi d'expliquer comment t'a fait la méthode et les params de detection)
 
-> roslaunch grp-orange challendge1_simulation.launch
+Une fois les coordonnées de l'objet trouvé, on vérifie que ce n'est pas un objet que l'on connait déjà en comparant leur distance. Si c'est un nouvel objet, on l'ajoute dans la liste. Sinon, on modifie ses coordonnée pour les ajuster. Afin d'éviter les fausse detection, on publie un marker dans /bottle uniquement si l'objet a été vus au moins 10 fois.
 
-if you want to start the robot controling program execute the following command
+L'ajustement se passe grâce à ce code :
 
->roslaunch grp-orange challendge1_turtlebot.launch
+    
+
+
+
