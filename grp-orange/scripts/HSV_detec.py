@@ -6,7 +6,7 @@ import numpy as np
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 import message_filters
-from test_marker import *
+from marker_publish import *
 import tf
 
 def souris(event, x, y, flags, param):
@@ -97,27 +97,31 @@ def image_proc(data):
 
         if  depth_bottle >= 150 and depth_bottle < 1500:
             display_info(rec,x,y)
-            gestionBottle(coor[0]/1000,-coor[1]/1000)
+            gestionBottle(coor[0]/1000,-coor[1]/1000,timeStamp)
             
     display_images()
 
     rate.sleep()
 
-def gestionBottle(x,y):
+def gestionBottle(x,y, time):
     global tfListener, bottles
-    createPose = init_PoseStamped(x,y)
+    createPose = init_PoseStamped(x,y,time)
     transfPose = tfListener.transformPose("map", createPose  )
-    test = 0
+    isClose = True
     for id,aBottle in enumerate(bottles):
-        if math.sqrt((transfPose.pose.position.x-aBottle[0])**2 + (transfPose.pose.position.y-aBottle[1])**2) < 0.30 :
+        if math.sqrt((transfPose.pose.position.x-aBottle[0])**2 + (transfPose.pose.position.y-aBottle[1])**2) < 0.20 :
             transfPose.pose.position.x=(transfPose.pose.position.x+aBottle[0])/2
             transfPose.pose.position.y=(transfPose.pose.position.y+aBottle[1])/2
-            marker_modify(transfPose.pose.position.x,transfPose.pose.position.y,transfPose.pose.position.z,id )
+            marker_modify(transfPose.pose.position.x,transfPose.pose.position.y,transfPose.pose.position.z,id,time )
             aBottle[0]=transfPose.pose.position.x
             aBottle[1]=transfPose.pose.position.y
-            test=1
-   
-    if test == 0:
+            isClose=False
+        for bBottle in bottles:
+            if math.sqrt((bBottle[0]-aBottle[0])**2 + (bBottle[1]-aBottle[1])**2) < 0.10 :
+                marker_delete(aBottle,id,time)
+                bottles.pop(id)
+                id-=1
+    if isClose:
         bottle=[transfPose.pose.position.x,transfPose.pose.position.y]
         bottles.append(bottle)
         marker_add(transfPose.pose.position.x,transfPose.pose.position.y,transfPose.pose.position.z, len(bottles))

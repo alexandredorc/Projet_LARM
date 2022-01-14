@@ -11,6 +11,6 @@
         
     <node type="HSV_detec.py" name="image_proc" pkg="grp-orange"/>
 
-    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find grp-orange)/rviz_config/rviz_test_trans.rviz" /> 
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find grp-orange)/rviz_config/rviz_config.rviz" /> 
     	
 </launch>
