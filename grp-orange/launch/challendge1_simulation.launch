@@ -19,7 +19,7 @@
     </node>
 
     <node type="main_real.py" name="control" pkg="grp-orange" output ="screen"/>
-	<node type="HSV_detect.py" name="analyze" pkg="grp-orange"/>
+	
 
 	
 </launch>
