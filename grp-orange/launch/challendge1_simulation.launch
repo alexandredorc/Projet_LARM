@@ -12,14 +12,14 @@
 	    <arg name="y" value="-2.95" />
 	    <arg name="yaw" value="2.86" />
     </include>
-
+	<group>
+        <node pkg="gmapping" type="slam_gmapping" name="gmapping_node" >
+            <param name="maxUrange" value="4.0"/>  
+        </node>      
+    </group>
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find grp-orange)/rviz_config/rviz_laser_config.rviz" />
-
-	<node type="slam_gmapping" name="gmapping" pkg="gmapping">
-    </node>
-
-    <node type="main_real.py" name="control" pkg="grp-orange" output ="screen"/>
-	
+    <node type="main_real.py" name="control" pkg="grp-orange"/>
+	<node type="HSV_detec.py" name="analyze" pkg="grp-orange" output="screen"/>
 
 	
 </launch>
