@@ -128,20 +128,12 @@ def get_depth(data):
     depth_image=np.array(bridge.imgmsg_to_cv2(data,'8UC1'))
     global depth_data
     depth_data = np.array(bridge.imgmsg_to_cv2(data, desired_encoding="passthrough"))
-
 if __name__=="__main__":
 
     print("(ง`_´)ง")#(ง`_´)ง
 
     rospy.init_node('image_proc', anonymous=True)
     
-
-    bridge = CvBridge()
-    tfListener= tf.TransformListener()
-
-    bottles=[]
-    color=[15,80,230]
-    hsv_px = [0,0,0]
     color_info=(0, 0, 255)
     depth_data=None
     lo=np.array(color)-10

@@ -39,15 +39,20 @@ def findClosest(data): # trouve les coordonées polaires des objets les plus pro
     return angle_min_G, angle_min_D, dist_min_G, dist_min_D
 
 def publisher(spin,speed): # cette fonction va transmettre les informations au robot
-          
+      
     cmd= Twist()
     global speed_actu
     global spin_actu
     if(speed>  speed_actu):
-        speed_actu+=0.02
+        speed_actu+=0.01
     if(speed<  speed_actu):
-        speed_actu-=0.02
-    if(speed>  speed_actu):Odometry
+        speed_actu-=0.01
+    if(speed>  speed_actu):
+        spin_actu+=0.01
+    if(speed<  speed_actu):
+        spin_actu-=0.01
+    cmd.angular.z= spin
+    cmd.linear.x= speed_actu
     commandPublisher.publish(cmd)
 
 def callback(data):
@@ -66,7 +71,7 @@ def callback(data):
     if dist_min < 0.6: #si le robot detecte un objet à moins de 0,6
 
         if dist_min < 0.4 : #selection de la vitesse en fonction de la distance de l'objet le plus proche
-            speed= 0.01Odometry
+            speed= 0.01
         elif dist_min < 0.5 :
             speed= 0.2
         elif dist_min >= 0.5 :
@@ -89,8 +94,8 @@ def callback(data):
 
     else: #si le robot ne detecte pas d'objet a 0,6 alors il va tout droit
         spin = 0
-        speed = 0.5
-
+        speed = 3
+    
     publisher(spin,speed)
 
 
@@ -98,14 +103,14 @@ def callback(data):
 rospy.init_node('move', anonymous=True)
 
 commandPublisher = rospy.Publisher(
-    '/cmd_vel',
+    '/cmd_vel_mux/input/navi',
     Twist, queue_size=10
 )
 
 spin_actu=0
 speed_actu=0
 
-rospy.Subscriber("/base_scan", LaserScan, callback )
+rospy.Subscriber("/scan", LaserScan, callback )
 # spin() enter the program in a infinite loop
 print("Start move.py")
 rospy.spin()

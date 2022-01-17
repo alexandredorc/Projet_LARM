@@ -14,7 +14,12 @@
     </include>
 
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find grp-orange)/rviz_config/rviz_laser_config.rviz" />
-    <node type="main.py" name="control" pkg="grp-orange"/>
+
+	<node type="slam_gmapping" name="gmapping" pkg="gmapping">
+    </node>
+
+    <node type="main_real.py" name="control" pkg="grp-orange" output ="screen"/>
+	<node type="HSV_detect.py" name="analyze" pkg="grp-orange"/>
 
 	
 </launch>

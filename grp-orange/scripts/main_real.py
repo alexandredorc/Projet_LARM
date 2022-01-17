@@ -13,7 +13,7 @@ commandPublisher = rospy.Publisher(
 )
 
 def check_path(data, angle_G, angle_D, dist_min_G, dist_min_D): # cette fonction determine si le robot peut passer dans un chemin devant lui
-    print("test")
+    print("I am speed")
     aPoint_G= [math.cos(angle_G) * dist_min_G, math.sin( angle_G ) * dist_min_G]
     aPoint_D= [math.cos(angle_D) * dist_min_D, math.sin( angle_D ) * dist_min_D]
     dist= math.sqrt((aPoint_G[0]-aPoint_D[0])**2+(aPoint_G[1]-aPoint_D[1])**2)
@@ -52,13 +52,13 @@ def publisher(spin,speed): # cette fonction va transmettre les informations au r
     global speed_actu
     global spin_actu
     if(speed>  speed_actu):
-        speed_actu+=0.01
+        speed_actu+=0.05
     if(speed<  speed_actu):
-        speed_actu-=0.01
+        speed_actu-=0.05
     if(speed>  speed_actu):
-        spin_actu+=0.01
+        spin_actu+=0.05
     if(speed<  speed_actu):
-        spin_actu-=0.01
+        spin_actu-=0.05
     cmd.angular.z= spin
     cmd.linear.x= speed_actu
     commandPublisher.publish(cmd)
@@ -97,12 +97,12 @@ def callback(data):
             spin=0
 
         # cette fonction gere le chemin pour les coins et les couloires
-        if dist_min_D > dist_min_G-0.1 and dist_min_D < dist_min_G+0.1 :
+        if dist_min_D > dist_min_G-0.1 and dist_min_D < dist_min_G+0.1 and dist_min < 0.5:
             speed,spin=check_path(data,angle_min_G,angle_min_D,dist_min_G,dist_min_D)
 
     else: #si le robot ne detecte pas d'objet a 0,6 alors il va tout droit
         spin = 0
-        speed = 0.3
+        speed = 1
 
     publisher(spin,speed)
 
