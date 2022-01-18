@@ -1,80 +1,32 @@
 #!/usr/bin/python3
-import math, rospy
+from dis import dis
+from distutils import dist
+from re import A
+import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
-
-
-# Initiglobal alize ROS::node
+from controler import *
+# Initialize  ROS::node
 rospy.init_node('move', anonymous=True)
-
-commandPublisher = rospy.Publisher(
-    '/cmd_vel_mux/input/navi',
-    Twist, queue_size=10
-)
-
-def check_path(data, angle_G, angle_D, dist_min_G, dist_min_D): # cette fonction determine si le robot peut passer dans un chemin devant lui
-    
-    aPoint_G= [math.cos(angle_G) * dist_min_G, math.sin( angle_G ) * dist_min_G]
-    aPoint_D= [math.cos(angle_D) * dist_min_D, math.sin( angle_D ) * dist_min_D]
-    dist= math.sqrt((aPoint_G[0]-aPoint_D[0])**2+(aPoint_G[1]-aPoint_D[1])**2)
-    if (dist<0.35):
-        print("I am spin")
-        spin=1
-        speed=0.03
-    else:
-        print("I am speed")
-        speed=0.25
-        spin=0
-    return speed,spin
-
 
 def findClosest(data): # trouve les coordonées polaires des objets les plus proches à droite et à gauche
     angle= data.angle_min
-    angle_min_G=0
-    angle_min_D=0
-    dist_min_G=100
-    dist_min_D=100
+    angle_min=[0,0]
+    dist_min=[100,100]
     for aDistance in data.ranges :
         if 0.1 < aDistance and aDistance < 5.0 and angle > -1.57 and angle < 1.57:
-            if angle < 0:
-                if dist_min_G > aDistance:
-                    dist_min_G=aDistance
-                    angle_min_G=angle
-            else:
-                if dist_min_D > aDistance:
-                    dist_min_D=aDistance
-                    angle_min_D=angle
-            
+            side=0 if (angle < 0) else 1
+            if dist_min[side]> aDistance:
+                dist_min[side]=aDistance
+                angle_min[side]=angle
         angle+= data.angle_increment
-    return angle_min_G, angle_min_D, dist_min_G, dist_min_D
-
-def publisher(spin,speed): # cette fonction va transmettre les informations au robot
-          
-    cmd= Twist()
-    global speed_actu
-    global spin_actu
-    if(speed>  speed_actu):
-        speed_actu+=0.02
-    if(speed<  speed_actu):
-        speed_actu-=0.02
-    if(speed>  speed_actu):
-        spin_actu+=0.02
-    if(speed<  speed_actu):
-        spin_actu-=0.02
-    cmd.angular.z= spin
-    cmd.linear.x= speed_actu
-    commandPublisher.publish(cmd)
+    print(angle_min,dist_min)
+    return angle_min,dist_min
 
 def callback(data):
-    angle_min_G, angle_min_D, dist_min_G, dist_min_D = findClosest(data)
-
-    if dist_min_G < dist_min_D:
-        dist_min=dist_min_G
-        angle_min=angle_min_G
-    else:
-        dist_min= dist_min_D
-        angle_min=angle_min_D
-
+    arr_angle_min, arr_dist_min = findClosest(data)
+    dist_min=min(arr_dist_min)
+    angle_min=arr_dist_min.index(dist_min)
     speed=0.3
     spin=0
 
@@ -97,20 +49,28 @@ def callback(data):
                 spin=0.5
         else:
             spin=0
-
+        Tbot.spin_goal=spin
+        Tbot.speed_goal=speed
         # cette fonction gere le chemin pour les coins et les couloires
-        if dist_min_D > dist_min_G-0.05 and dist_min_D < dist_min_G+0.05 and dist_min < 0.5:
-            speed,spin=check_path(data,angle_min_G,angle_min_D,dist_min_G,dist_min_D)
+        if arr_dist_min[0] > arr_dist_min[1]-0.05 and arr_dist_min[0] < arr_dist_min[1]+0.05 and dist_min < 0.5:
+            Tbot.check_path(arr_angle_min,arr_dist_min)
 
     else: #si le robot ne detecte pas d'objet a 0,6 alors il va tout droit
         spin = 0
         speed = 0.5
+        Tbot.spin_goal=spin
+        Tbot.speed_goal=speed
 
-    publisher(spin,speed)
+    Tbot.publisher()
 
 
-spin_actu=0
-speed_actu=0
+Tbot=Controler()
+
+commandPublisher = rospy.Publisher(
+    '/cmd_vel_mux/input/navi',
+    Twist, queue_size=10
+)
+
 
 rospy.Subscriber("/scan", LaserScan, callback )
 # spin() enter the program in a infinite loop
