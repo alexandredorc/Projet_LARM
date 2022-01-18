@@ -17,7 +17,7 @@ def check_path(data, angle_G, angle_D, dist_min_G, dist_min_D): # cette fonction
     aPoint_G= [math.cos(angle_G) * dist_min_G, math.sin( angle_G ) * dist_min_G]
     aPoint_D= [math.cos(angle_D) * dist_min_D, math.sin( angle_D ) * dist_min_D]
     dist= math.sqrt((aPoint_G[0]-aPoint_D[0])**2+(aPoint_G[1]-aPoint_D[1])**2)
-    if (dist<0.2):
+    if (dist<0.35):
         print("I am spin")
         spin=1
         speed=0.03
@@ -54,13 +54,13 @@ def publisher(spin,speed): # cette fonction va transmettre les informations au r
     global speed_actu
     global spin_actu
     if(speed>  speed_actu):
-        speed_actu+=0.05
+        speed_actu+=0.02
     if(speed<  speed_actu):
-        speed_actu-=0.05
+        speed_actu-=0.02
     if(speed>  speed_actu):
-        spin_actu+=0.05
+        spin_actu+=0.02
     if(speed<  speed_actu):
-        spin_actu-=0.05
+        spin_actu-=0.02
     cmd.angular.z= spin
     cmd.linear.x= speed_actu
     commandPublisher.publish(cmd)
