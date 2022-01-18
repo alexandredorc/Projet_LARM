@@ -1,17 +1,10 @@
 <?xml version="1.0"?>
 <launch>
+    	
+    <include file="$(find turtlebot_bringup)/launch/minimal.launch" />
+    <node type="urg_node" name="scanner" pkg="urg_node" />  
+    <include file="$(find realsense2_camera)/launch/rs_aligned_depth"/>
 
-	<!-- <env name="GAZEBO_RESOURCE_PATH" value="$(env HOME)/.gazebo" /> -->
-	<!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
-	<include file="$(find tbot_gazebo)/launch/start_world.launch">
-		<arg name="world_file" value="$(find larm)/models/challenge-1.world" />
-	</include>
-
-    <include file="$(find tbot_gazebo)/launch/spawn_tbot.launch">
-	    <arg name="x" value="-3.32" />
-	    <arg name="y" value="-2.95" />
-	    <arg name="yaw" value="2.86" />
-    </include>
 	<group>
         <node pkg="gmapping" type="slam_gmapping" name="gmapping_node" >
             <param name="maxUrange" value="4.0"/>  

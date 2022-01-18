@@ -104,7 +104,7 @@ def callback(data):
 
     else: #si le robot ne detecte pas d'objet a 0,6 alors il va tout droit
         spin = 0
-        speed = 0.8
+        speed = 0.5
 
     publisher(spin,speed)
 
