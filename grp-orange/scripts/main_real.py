@@ -1,13 +1,13 @@
 #!/usr/bin/python3
-from dis import dis
-from distutils import dist
-from re import A
-import rospy
+import sys, rospy, rospkg
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
-from controler import *
-# Initialize  ROS::node
-rospy.init_node('move', anonymous=True)
+
+
+
+sys.path.append( rospkg.RosPack().get_path('grp-orange') )
+from scripts.controler import *
+
 
 def findClosest(data): # trouve les coordonées polaires des objets les plus proches à droite et à gauche
     angle= data.angle_min
@@ -20,7 +20,6 @@ def findClosest(data): # trouve les coordonées polaires des objets les plus pro
                 dist_min[side]=aDistance
                 angle_min[side]=angle
         angle+= data.angle_increment
-    print(angle_min,dist_min)
     return angle_min,dist_min
 
 def callback(data):
@@ -29,8 +28,9 @@ def callback(data):
     angle_min=arr_dist_min.index(dist_min)
     speed=0.3
     spin=0
-
+    print("test")
     if dist_min < 0.6: #si le robot detecte un objet à moins de 0,6
+        print("test 06")
         if dist_min < 0.4 : #selection de la vitesse en fonction de la distance de l'objet le plus proche
             speed= 0.01
             spin=1
@@ -49,6 +49,7 @@ def callback(data):
                 spin=0.5
         else:
             spin=0
+        print(speed,spin)
         Tbot.spin_goal=spin
         Tbot.speed_goal=speed
         # cette fonction gere le chemin pour les coins et les couloires
@@ -70,6 +71,9 @@ commandPublisher = rospy.Publisher(
     '/cmd_vel_mux/input/navi',
     Twist, queue_size=10
 )
+
+# Initialize  ROS::node
+rospy.init_node('move', anonymous=True)
 
 
 rospy.Subscriber("/scan", LaserScan, callback )

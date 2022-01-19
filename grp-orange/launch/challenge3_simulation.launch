@@ -17,5 +17,5 @@
     </node>
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find grp-orange)/rviz_config/rviz_laser_config.rviz" />
     <node type="main.py" name="control" pkg="grp-orange" output="screen"/>	
-	<node type="trace_robot.py" name="traceRobot" pkg="grp-orange"/>
+	<!--node type="trace_robot.py" name="traceRobot" pkg="grp-orange"/-->
 </launch>
