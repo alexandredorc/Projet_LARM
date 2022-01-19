@@ -19,14 +19,14 @@ def realCoor(x,y,dist):
     return [math.cos(angle) * dist, math.sin( angle ) * dist-35]
 
 #affiche les informations relatives à la detection de la bouteille
-def display_info(rec,x,y):
+def display_info(rec,x,y,frame,image,mask):
     cv2.rectangle(frame, (int(rec[0]), int(rec[1])), (int(rec[0])+int(rec[2]), int(rec[3])+int(rec[1])), color_info, 2)
     cv2.circle(frame, (int(x), int(y)), 5, color_info, 10)
     cv2.line(frame, (int(x), int(y)), (int(x)+150, int(y)), color_info, 2)
     cv2.putText(frame, "Objet !!!", (int(x)+10, int(y) -10), cv2.FONT_HERSHEY_DUPLEX, 1, color_info, 1, cv2.LINE_AA)
             
 #affiche le flux de la caméra, le masque et le resultat du masque sur le flux camera
-def display_images():
+def display_images(frame,image,mask):
     stencil=cv2.bitwise_and(image, frame, mask= mask)
     cv2.putText(frame, "Couleur: {0} {1} {2}".format(color[0],color[1],color[2]), (10, 30), cv2.FONT_HERSHEY_DUPLEX, 1, color_info, 1, cv2.LINE_AA)
     cv2.imshow('Camera', frame)
@@ -36,10 +36,7 @@ def display_images():
     cv2.waitKey(3)
 
 def image_proc(data):
-    
-    global frame,image,mask
     global depth_data
-    global timeStamp
     timeStamp= data.header.stamp
 
     frame = bridge.imgmsg_to_cv2(data, "bgr8")
@@ -71,15 +68,15 @@ def image_proc(data):
         coor= realCoor(x,y,depth_bottle)
 
         if  depth_bottle >= 150 and depth_bottle < 1500:
-            #display_info(rec,x,y)
+            #display_info(rec,x,y,frame,image,mask)
             gestionBottle(coor[0]/1000,-coor[1]/1000,timeStamp)   
-    #display_images()
+    #display_images(frame,image,mask)
 
     rate.sleep()
 
 #fonction permettant de gerer les marker en fonction des bouteilles qui sont détecter
 def gestionBottle(x,y,time):
-    global tfListener, bottles
+    global bottles
     createPose = init_PoseStamped(x,y,time)
     transfPose = tfListener.transformPose("map", createPose )
 

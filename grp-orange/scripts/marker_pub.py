@@ -51,10 +51,6 @@ def init_PoseStamped(x,y,time):
 def marker(x,y,z,id,time):
     bottle= init_markers(x,y,z,id,time)
     commandPublisher.publish(bottle)
-def marker_modify(x,y,z,id,time):
-    bottle= init_markers(x,y,z,id,time)
-    bottle.action = Marker.MODIFY
-    commandPublisher.publish(bottle)
 def marker_delete(coor,id,time):
     delete_bottle=init_markers(coor[0],coor[1],0,id,time)
     delete_bottle.action=Marker.DELETE
