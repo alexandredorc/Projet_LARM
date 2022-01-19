@@ -27,9 +27,7 @@ class Controler:
             self.speed+=0.02
         cmd.angular.z= self.spin_goal
         cmd.linear.x= self.speed
-        """ print("twist")
-        print(self.speed,self.spin)
-        print(self.speed_goal,self.spin_goal)"""
+        
         commandPublisher.publish(cmd)
 
 
