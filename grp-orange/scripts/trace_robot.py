@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from asyncio.windows_events import NULL
 import math, rospy
 from sqlite3 import Timestamp

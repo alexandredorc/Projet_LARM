@@ -12,7 +12,10 @@
 	    <arg name="y" value="-2.95" />
 	    <arg name="yaw" value="2.86" />
     </include>
-
+	<node pkg="gmapping" type="slam_gmapping" name="gmapping_node" >
+            <param name="maxUrange" value="4.0"/>  
+    </node>
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find grp-orange)/rviz_config/rviz_laser_config.rviz" />
     <node type="main.py" name="control" pkg="grp-orange" output="screen"/>	
+	<node type="trace_robot.py" name="traceRobot" pkg="grp-orange"/>
 </launch>
