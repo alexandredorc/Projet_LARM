@@ -10,6 +10,11 @@ commandPublisher = rospy.Publisher(
     Marker, queue_size=10
 )
 
+commandPublisherPoint = rospy.Publisher(
+    '/trace',
+    Marker, queue_size=100
+)
+
 def init_markers(x,y,z,id,time):
     marker = Marker()
     marker.header.frame_id = 'map' #self.global_frame
@@ -59,3 +64,14 @@ def marker_delete(coor,id,time):
     delete_bottle=init_markers(coor[0],coor[1],0,id,time)
     delete_bottle.action=Marker.DELETE
     commandPublisher.publish(delete_bottle)
+    
+def marker_Points(x,y,z,id,time):
+    bottle= init_markers(x,y,z,id,time)
+    bottle.type = 8
+    bottle.color.r=1
+    bottle.color.g=0
+    bottle.scale.z=0.1
+    commandPublisherPoint.publish(bottle)
+
+
+
