@@ -55,6 +55,9 @@ def callback(data):
         # cette fonction gere le chemin pour les coins et les couloires
         if arr_dist_min[0] > arr_dist_min[1]-0.05 and arr_dist_min[0] < arr_dist_min[1]+0.05 and dist_min < 0.5:
             Tbot.check_path(arr_angle_min,arr_dist_min)
+        elif Tbot.corner:
+            Tbot.corner=False
+            Tbot.side*=-1
 
     else: #si le robot ne detecte pas d'objet a 0,6 alors il va tout droit
         spin = 0
