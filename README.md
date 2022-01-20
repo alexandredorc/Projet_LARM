@@ -2,30 +2,30 @@
 
 https://ceri-num.gitbook.io/uv-larm/
 
-Ce projet à pour but de detecter des bouteilles dans un environnement à l'aide d'une caméra
+This project aims to detect bottles in an environment using a camera
 
-Pour lancer notre projet, il suffit de lancer le launch 
+To launch our project, we just need to run the launch 
 > roslaunch grp-orange challenge2.launch
 
-Attention : Pour lancer le rosbag, il faut lancer aussi sa clock.    
+Warning: To launch the rosbag, you must also launch its clock.    
     
-    rosbag play --clock [nom du rosbag]
+    rosbag play --clock [name of the rosbag]
 
-# Composition du package
+# Composition of the package
 
-> scripts : Nous utilisons 2 scripts, le principal *main* et un spécifiquement pour la création de message comme les markers
+> scripts : We use 2 scripts, the main one *main* and one specifically for creating messages like markers
 
-> rviz : contient la map paramatré de rviz
+> rviz: contains the rviz parameterized map
 
-> launch : contient le launch lançant l'ensemble de notre projet
+> launch : contains the launch that runs our whole project
 
-# Explication du code
+# Explanation of the code
 
 ### main.py 
 
-Afin de trouver les bouteilles à l'écran, nous avons décidé d'utiliser la méthode HSV.
+In order to find the bottles on the screen, we decided to use the HSV method.
 
-Nous avons identifié un domaine de couleur HSV dans lequel ce trouve les couleurs presentent sur les bouteilles oranges, nous définissons une borne supérieur et infeurieur qui va créer un masque à partir duquel on pourra identifier des formes. 
+We have identified an HSV colour domain in which the colours on the orange bottles are found, we define an upper and lower bound which will create a mask from which we can identify shapes. 
 
 ```python
 mask=cv2.inRange(image, lo_or, hi_or)
@@ -34,13 +34,13 @@ mask=cv2.dilate(mask, None, iterations=6)
 elements=cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 ```
 
-parmis toutes les formes nous allons conserver uniquement les formes qui on un certaine aire et à une distance compris entre 30cm et 1m50cm, la forme la plus grande nous donnera la position en pixel de notre bouteille. 
+Among all the shapes we will keep only the shapes that have a certain area and at a distance between 30cm and 1m50cm, the largest shape will give us the pixel position of our bottle. 
 
 ```python
 if depth_bottle >= 150 and depth_bottle < 1500 and cv2.contourArea(e)>300:
 ```
 
-Par la suite nous calculons via les coordonées de la bouteille sur l'image et la profondeur à la quelle le centre de la bouteille ce situe. 
+Then we calculate via the coordinates of the bottle in the image and the depth at which the centre of the bottle is located. 
 
 ```python
 width=43.5*sc_x/640
@@ -49,25 +49,15 @@ angle=angle*math.pi/180
 return [math.cos(angle) * dist, math.sin( angle ) * dist-35]
 ```
 
-grâce à cela nous pouvons obtenir la position de la bouteille relative à la caméra. on appliquera une transformer vers le repêre `/map`. 
+With this we can get the position of the bottle relative to the camera. We will apply a transform to the `/map` frame. 
 
 ```python
 transfPose = tfListener.transformPose("map", createPose)
 ```
 
-Une fois les coordonnées de l'objet trouvé, on vérifie que ce n'est pas un objet que l'on connait déjà en comparant leur distance. Si c'est un nouvel objet, on l'ajoute dans la liste. Sinon, on modifie ses coordonnées pour les ajuster. Afin d'éviter les fausses detections, on publie un marker dans `/bottle` uniquement si l'objet a été vu au moins 10 fois.
-
-
+Once we have found the coordinates of the object, we check that it is not an object we already know by comparing their distance. If it is a new object, we add it to the list. If not, we modify its coordinates to adjust them. To avoid false detections, we only publish a marker in `/bottle` if the object has been seen at least 10 times.
 
 ### marker_pub.py 
 
-c'est un fichier qui contient des fonction nous permettant de manipuler les différents markeur dans rviz.
-
-
-
-
-
-    
-
-
+this is a file that contains functions that allow us to manipulate the different markers in rviz.
 
