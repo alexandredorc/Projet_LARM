@@ -1,8 +1,5 @@
 #!/usr/bin/python3
-from asyncio.windows_events import NULL
 import math, rospy
-from sqlite3 import Timestamp
-from turtle import tracer
 import cv2
 import numpy as np
 from visualization_msgs.msg import Marker

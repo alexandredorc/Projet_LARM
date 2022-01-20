@@ -12,7 +12,7 @@ class Controler:
         aPoint_D= [math.cos(angle_min[1]) * dist_min[1], math.sin( angle_min[1] ) * dist_min[1]]
         dist= math.sqrt((aPoint_G[0]-aPoint_D[0])**2+(aPoint_G[1]-aPoint_D[1])**2)
         if (dist<0.25):
-            self.spin_goal=1
+            self.spin_goal=0.8
             self.speed_goal=0.03
         else:
             self.speed_goal=0.25
