@@ -61,12 +61,14 @@ def marker_delete(coor,id,time):
     delete_bottle.action=Marker.DELETE
     commandPublisher.publish(delete_bottle)
     
-def marker_Points(x,y,z,id,time):
-    bottle= init_markers(x,y,z,id,time)
-    bottle.type = 8
+def marker_Points(x,y,z,id):
+    bottle= init_markers(x,y,z,id,rospy.Time())
+    bottle.type = 3
     bottle.color.r=1
     bottle.color.g=0
-    bottle.scale.z=0.1
+    bottle.scale.z=0.01
+    bottle.header.stamp.secs=0
+    bottle.header.stamp.nsecs=0
     commandPublisherPoint.publish(bottle)
 
 

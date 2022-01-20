@@ -14,6 +14,9 @@
     <node type="main_real.py" name="control" pkg="grp-orange"/>
 	<node type="detection.py" name="detection" pkg="grp-orange" output="screen"/>
     <node type="trace_robot.py" name="traceRobot" pkg="grp-orange"/>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7da6b6d2739249085258036d350b27750f5b5eaf
 	
 </launch>

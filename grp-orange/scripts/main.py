@@ -32,7 +32,7 @@ def callback(data):
         if dist_min < 0.4 : #selection de la vitesse en fonction de la distance de l'objet le plus proche
             speed= 0.01
             spin=1
-            print("test")
+            
         elif dist_min < 0.5 :
             speed= 0.2
         elif dist_min >= 0.5 :
@@ -48,12 +48,16 @@ def callback(data):
                 spin=0.5
         else:
             spin=0
-            print("stop")
+            
         Tbot.spin_goal=spin
         Tbot.speed_goal=speed
         # cette fonction gere le chemin pour les coins et les couloires
         if arr_dist_min[0] > arr_dist_min[1]-0.05 and arr_dist_min[0] < arr_dist_min[1]+0.05 and dist_min < 0.5:
             Tbot.check_path(arr_angle_min,arr_dist_min)
+        elif Tbot.corner:
+            Tbot.corner=False
+            Tbot.side*=-1
+
 
     else: #si le robot ne detecte pas d'objet a 0,6 alors il va tout droit
         spin = 0
