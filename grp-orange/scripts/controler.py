@@ -15,7 +15,6 @@ class Controler:
         aPoint_D= [math.cos(angle_min[1]) * dist_min[1], math.sin( angle_min[1] ) * dist_min[1]]
         dist= math.sqrt((aPoint_G[0]-aPoint_D[0])**2+(aPoint_G[1]-aPoint_D[1])**2)
         if (dist<0.35):
-            print("corner",self.side)
             self.corner=True
             self.spin_goal=self.side
             self.speed_goal=0.03
@@ -31,7 +30,6 @@ class Controler:
             self.speed+=0.02
         cmd.angular.z= self.spin_goal
         cmd.linear.x= self.speed
-        
         commandPublisher.publish(cmd)
 
 
