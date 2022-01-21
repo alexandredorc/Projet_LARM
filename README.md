@@ -7,12 +7,12 @@ This project aims to make the robot explore in autonomous his environment and de
 # Composition of the package
 
 ## scripts : We use 6 scripts. 3 of them start a node.
-- [controler.py](#controler.py) : 
-- [detection.py](#detection.py) :
-- [main.py](#main.py) :
-- [main_real.py](#main_real.py) :
-- [marker_pub.py](#marker_pub.py) :
-- [trace.py](#trace.py) :
+- [controler.py](#-controler.py) : 
+- [detection.py](#-detection.py) :
+- [main.py](#-main.py) :
+- [main_real.py](#-main_real.py) :
+- [marker_pub.py](#-marker_pub.py) :
+- [trace.py](#-trace.py) :
 
 ## rviz 
 - contains the rviz parameterized map
