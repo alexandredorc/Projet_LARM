@@ -4,14 +4,13 @@ https://ceri-num.gitbook.io/uv-larm/
 
 This project goal is to be able to control a turtle type of robot in gazebo and in hobuki robots in reality.
 
-To make htis project work you will need the package mb6-tbot to be download. follow this website indication 
+To make this project work you will need the package mb6-tbot to be download. follow this website indication 
 
 > https://bitbucket.org/imt-mobisyst/mb6-tbot/src/master/
 
-after executing the roscore command in the terminal. You can execute 2 différent launch files that start the control program in either the gazebo simulation:
+This project was divided into 3 challenges in the branches of the same name:
 
-> roslaunch grp-orange challendge1_simulation.launch
+* challenge 1: Move the robot
+* challenge 2: 3D Vision and object detection
+* challenge 3: autonomous movement and detection
 
-if you want to start the robot controling program execute the following command
-
->roslaunch grp-orange challendge1_turtlebot.launch
