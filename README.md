@@ -103,3 +103,6 @@ It has a `check_path` function which enable the robot the have a special behavio
 *if the distance is greater than the robot size:*
 
 then it will recognize the environment as a corridor and thus its spin will be 0 
+
+## trace.py
+This scripts subscribe to the odom topic and make markers in order to let appear the robot's path in RVIZ.
