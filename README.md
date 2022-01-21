@@ -6,13 +6,39 @@ This project aims to make the robot explore in autonomous his environment and de
 
 # Composition of the package
 
-> scripts : We use 3 scripts, the main one *main* and one specifically for creating messages like markers
+## scripts : We use 6 scripts. 3 of them start a node.
+- controller.py : 
+- detect.py :
+- main.py :
+- main_real.py :
+- marker.py :
+- trace.py :
 
-> rviz: contains the rviz parameterized map
+## rviz 
+- contains the rviz parameterized map
 
-> launch : contains the launch that runs our whole project
+## launch 
+- contains the launch that runs our whole project
 
 # Explanation of the code
+
+## challenge3_simulation.launch
+In order to start all the nodes we need for a simulation, we make a launch.
+This launch start :
+- Gazebo with the map of the challenge 1 and a scan
+- Our parametized RVIZ
+- main.py, a script for autonomous movement
+- trace.py, a script to follow the robot's path
+
+## challenge3_turtlebot.launch
+In order to start all the nodes we need to make the robot move and detect, we make this launch.
+this launch start :
+- the launch to connect the robot
+- the scan
+- the realsense camera
+- the paramatized RVIZ
+- main_real.py, a script for autonomous movement for the reality
+- trace.py, a script to follow the robot's path
 
 ## detection.py 
 
