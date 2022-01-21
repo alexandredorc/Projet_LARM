@@ -25,27 +25,29 @@ def findClosest(data): # trouve les coordonées polaires des objets les plus pro
 def callback(data):
     arr_angle_min, arr_dist_min = findClosest(data)
     dist_min=min(arr_dist_min)
-    angle_min=arr_dist_min.index(dist_min)
+    index=arr_dist_min.index(dist_min)
+    angle_min=arr_angle_min[index]
     speed=0.3
     spin=0
+
     
     if dist_min < 0.6: #si le robot detecte un objet à moins de 0,6
         
         if dist_min < 0.4 : #selection de la vitesse en fonction de la distance de l'objet le plus proche
             speed= 0.01
             spin=1
-        elif dist_min < 0.5 :
+        elif dist_min < 0.6 :
             speed= 0.2
-        elif dist_min >= 0.5 :
+        elif dist_min >= 0.6 :
             speed= 0.3
 
         if angle_min > 0: #selection de la rotation en fonction de la distance de l'objet le plus proche
             spin = -0.2
-            if dist_min < 0.5: 
+            if dist_min < 0.6: 
                 spin= -0.5
         elif angle_min < 0:
             spin = 0.2
-            if dist_min < 0.5:
+            if dist_min < 0.6:
                 spin=0.5
         else:
             spin=0
@@ -53,7 +55,7 @@ def callback(data):
         Tbot.spin_goal=spin
         Tbot.speed_goal=speed
         # cette fonction gere le chemin pour les coins et les couloires
-        if arr_dist_min[0] > arr_dist_min[1]-0.05 and arr_dist_min[0] < arr_dist_min[1]+0.05 and dist_min < 0.5:
+        if arr_dist_min[0] > arr_dist_min[1]-0.1 and arr_dist_min[0] < arr_dist_min[1]+0.1 and dist_min < 0.5:
             Tbot.check_path(arr_angle_min,arr_dist_min)
         elif Tbot.corner:
             Tbot.corner=False

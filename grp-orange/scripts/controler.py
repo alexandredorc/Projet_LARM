@@ -3,9 +3,8 @@ from geometry_msgs.msg import Twist
 
 class Controler: 
     def __init__(self):
-        self.speed=0.5
+        self.speed=0.2
         self.speed_goal=0.5
-        self.spin=0
         self.spin_goal=0
         self.side=1
         self.corner=True
@@ -28,6 +27,7 @@ class Controler:
             self.speed-=0.02
         if(self.speed<  self.speed_goal):
             self.speed+=0.02
+        
         cmd.angular.z= self.spin_goal
         cmd.linear.x= self.speed
         commandPublisher.publish(cmd)
