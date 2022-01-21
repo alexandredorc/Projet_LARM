@@ -7,12 +7,12 @@ This project aims to make the robot explore in autonomous his environment and de
 # Composition of the package
 
 ## scripts : We use 6 scripts. 3 of them start a node.
-- controller.py : 
-- detect.py :
-- main.py :
-- main_real.py :
-- marker.py :
-- trace.py :
+- [controler.py](#controler.py) : 
+- [detection.py](#detection.py) :
+- [main.py](#main.py) :
+- [main_real.py](#main_real.py) :
+- [marker_pub.py](#marker_pub.py) :
+- [trace.py](#trace.py) :
 
 ## rviz 
 - contains the rviz parameterized map
@@ -81,7 +81,6 @@ Once we have found the coordinates of the object, we check that it is not an obj
 this is a file that contains functions that allow us to manipulate the different markers in rviz. we can either add/modify or delete a marker. 
 
 
-
 ## controler.py
 
 This file is creating the class Controler,
@@ -100,9 +99,24 @@ It has a `publisher` function that is transmiting the speed and spin data to the
 ```
 It has a `check_path` function which enable the robot the have a special behaviour when it sees obscacles on both sides at a close distance. In that case it will calculate the distance between the two closest points on each sides.
 
-*if the distance is greater than the robot size:*
+***if the distance is greater than the robot size, then it will recognize the environment as a corridor:***
+- speed: 0.25
+- spin: 0
 
-then it will recognize the environment as a corridor and thus its spin will be 0 
+***if the distance is lower than the robot size; then it will recognize the environment as a corner:***
+- speed: 0.03
+- spin: ±1 (it will alternate between -1, 1)
+
+## main.py
+
+This file role is to decide how the robot linear and angular speed depending on the data given by the scanner. this file is config for the gazebo simulation.
+
+the detection function is looking at the position of the closest object, we will then decide what are the spin and speed of the robot depending on the distance of the point, if the point is the closer then the spin will be greater and the speed lower.
+
+## main_real.py
+
+This file role is to decide how the robot linear and angular speed depending on the data given by the scanner. it is the same as the `main.py` file but adapt for the real kobuki robot.
 
 ## trace.py
 This scripts subscribe to the odom topic and make markers in order to let appear the robot's path in RVIZ.
+

@@ -97,7 +97,7 @@ def gestionBottle(x,y,time):
                 bottles[id][1]=y
                 bottles[id][2]+=1
                 #affiche le marker si il à été vu 10 fois ou plus
-                if bottles[id][2]>20:
+                if bottles[id][2]>15:
                     marker(x,y,0,id+1,time)
                 #permet de fusionner les bouteilles qui sont très proches
                 for id2 in range(0,id,1):
@@ -116,7 +116,6 @@ def get_depth(data):
 if __name__=="__main__":
 
     #print("(ง`_´)ง")#(0ง`_´)ง
-
     rospy.init_node('image_proc', anonymous=True)
 
     bridge = CvBridge()

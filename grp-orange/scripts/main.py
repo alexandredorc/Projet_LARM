@@ -58,28 +58,26 @@ def callback(data):
             Tbot.corner=False
             Tbot.side*=-1
 
-
     else: #si le robot ne detecte pas d'objet a 0,6 alors il va tout droit
         spin = 0
         speed = 0.5
         Tbot.spin_goal=spin
         Tbot.speed_goal=speed
-
     Tbot.publisher()
+    
+#fonction main
+if __name__=="__main__":          
+    Tbot=Controler()
 
+    commandPublisher = rospy.Publisher(
+        '/cmd_vel_mux/input/navi',
+        Twist, queue_size=10
+    )
 
-Tbot=Controler()
+    # Initialize  ROS::node
+    rospy.init_node('move', anonymous=True)
 
-commandPublisher = rospy.Publisher(
-    '/cmd_vel_mux/input/navi',
-    Twist, queue_size=10
-)
-
-# Initialize  ROS::node
-rospy.init_node('move', anonymous=True)
-
-
-rospy.Subscriber("/scan", LaserScan, callback )
-# spin() enter the program in a infinite loop
-print("Start move.py")
-rospy.spin()
+    rospy.Subscriber("/scan", LaserScan, callback )
+    # spin() enter the program in a infinite loop
+    print("Start move.py")
+    rospy.spin()

@@ -69,19 +69,19 @@ def callback(data):
 
     Tbot.publisher()
 
+#fonction main
+if __name__=="__main__":  
+    Tbot=Controler()
 
-Tbot=Controler()
+    commandPublisher = rospy.Publisher(
+        '/cmd_vel_mux/input/navi',
+        Twist, queue_size=10
+    )
 
-commandPublisher = rospy.Publisher(
-    '/cmd_vel_mux/input/navi',
-    Twist, queue_size=10
-)
+    # Initialize  ROS::node
+    rospy.init_node('move', anonymous=True)
 
-# Initialize  ROS::node
-rospy.init_node('move', anonymous=True)
-
-
-rospy.Subscriber("/scan", LaserScan, callback )
-# spin() enter the program in a infinite loop
-print("Start move.py")
-rospy.spin()
+    rospy.Subscriber("/scan", LaserScan, callback )
+    # spin() enter the program in a infinite loop
+    print("Start move.py")
+    rospy.spin()
