@@ -2,18 +2,11 @@
 
 https://ceri-num.gitbook.io/uv-larm/
 
-This project aims to detect bottles in an environment using a camera
-
-To launch our project, we just need to run the launch 
-> roslaunch grp-orange challenge2.launch
-
-Warning: To launch the rosbag, you must also launch its clock.    
-    
-    rosbag play --clock [name of the rosbag]
+This project aims to make the robot explore in autonomous his environment and detects bottles in it.
 
 # Composition of the package
 
-> scripts : We use 2 scripts, the main one *main* and one specifically for creating messages like markers
+> scripts : We use 3 scripts, the main one *main* and one specifically for creating messages like markers
 
 > rviz: contains the rviz parameterized map
 
