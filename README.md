@@ -4,6 +4,10 @@ https://ceri-num.gitbook.io/uv-larm/
 
 This project goal is to be able to control a turtle type of robot in gazebo and in hobuki robots in reality.
 
+Here is the video presentation (in French) of the results of this project:
+
+> https://www.youtube.com/watch?v=ZDZ-YXfHlzc
+
 To make this project work you will need the package mb6-tbot to be download. follow this website indication 
 
 > https://bitbucket.org/imt-mobisyst/mb6-tbot/src/master/
