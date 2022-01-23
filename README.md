@@ -4,6 +4,8 @@ https://ceri-num.gitbook.io/uv-larm/
 
 This project aims to make the robot explore in autonomous his environment and detects bottles in it.
 
+[Here](https://www.youtube.com/watch?v=ZDZ-YXfHlzc) is the video presentation (in French) of the results of this project:
+
 # Composition of the package
 
 ## scripts : We use 6 scripts. 3 of them start a node.
